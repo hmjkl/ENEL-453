@@ -18,6 +18,16 @@ Signal Num_Hex0, Num_Hex1, Num_Hex2, Num_Hex3, Num_Hex4, Num_Hex5 : STD_LOGIC_VE
 Signal DP_in, Blank:  STD_LOGIC_VECTOR (5 downto 0);
 Signal switch_inputs: STD_LOGIC_VECTOR (12 downto 0);
 Signal bcd:           STD_LOGIC_VECTOR(15 DOWNTO 0);
+signal d0: STD_LOGIC_VECTOR(15 downto 0);
+signal d1: STD_LOGIC_VECTOR(15 downto 0);
+signal y: STD_LOGIC_VECTOR(15 downto 0);
+
+component mux16 is
+	Port(
+			d0, d1: in STD_LOGIC_VECTOR (15 downto 0);
+			s: in STD_LOGIC;
+			y: out STD_LOGIC_VECTOR(15 downto 0));
+end component;
 
 Component SevenSegment is
     Port( Num_Hex0,Num_Hex1,Num_Hex2,Num_Hex3,Num_Hex4,Num_Hex5 : in  STD_LOGIC_VECTOR (3 downto 0);
@@ -36,10 +46,10 @@ Component binary_bcd IS
 END Component;
 
 begin
-   Num_Hex0 <= bcd(3  downto  0); 
-   Num_Hex1 <= bcd(7  downto  4);
-   Num_Hex2 <= bcd(11 downto  8);
-   Num_Hex3 <= bcd(15 downto 12);
+   Num_Hex0 <= y(3  downto  0); 
+   Num_Hex1 <= y(7  downto  4);
+   Num_Hex2 <= y(11 downto  8);
+   Num_Hex3 <= y(15 downto 12);
    Num_Hex4 <= "0000";
    Num_Hex5 <= "0000";   
    DP_in    <= "000000"; -- position of the decimal point in the display (1=LED on,0=LED off)
@@ -67,6 +77,17 @@ SevenSegment_ins: SevenSegment
  
 LEDR(9 downto 0) <=SW(9 downto 0); -- gives visual display of the switch inputs to the LEDs on board
 switch_inputs <= "00000" & SW(7 downto 0);
+
+d0 <= bcd(15 downto 0);
+d1 <= "00000000" & sw(7 downto 0);
+
+mux_ins: mux16 PORT MAP(
+								d0 => d0,
+								d1 => d1,
+								s  => sw(9),
+								y => y
+								);
+								
 
 binary_bcd_ins: binary_bcd                               
    PORT MAP(
