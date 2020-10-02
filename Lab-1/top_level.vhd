@@ -22,7 +22,7 @@ signal d0: STD_LOGIC_VECTOR(15 downto 0);
 signal d1: STD_LOGIC_VECTOR(15 downto 0);
 signal y: STD_LOGIC_VECTOR(15 downto 0);
 
-component mux16 is
+component mux2 is
 	Port(
 			d0, d1: in STD_LOGIC_VECTOR (15 downto 0);
 			s: in STD_LOGIC;
@@ -81,7 +81,7 @@ switch_inputs <= "00000" & SW(7 downto 0);
 d0 <= bcd(15 downto 0);
 d1 <= "00000000" & sw(7 downto 0);
 
-mux_ins: mux16 PORT MAP(
+mux_ins: mux2 PORT MAP(
 								d0 => d0,
 								d1 => d1,
 								s  => sw(9),
