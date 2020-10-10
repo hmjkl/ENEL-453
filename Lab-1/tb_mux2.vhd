@@ -15,7 +15,7 @@ architecture sim of tb_mux2 is
   signal in0, in1, mout : STD_LOGIC_VECTOR(15 downto 0);
   signal msel           : STD_LOGIC;
 
-  constant tdelay : time := 15 ns;
+  constant tdelay : time := 20 ns;
 
 begin
 
