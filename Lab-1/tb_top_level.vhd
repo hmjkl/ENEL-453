@@ -50,7 +50,7 @@ architecture tb of tb_top_level is
   constant Hf : STD_LOGIC_VECTOR(7 downto 0) := "01110001";
 
 
-  constant TbPeriod : time := 20 ps;
+  constant TbPeriod : time := 20 ns;
   signal TbClock : std_logic := '0';
   signal TbSimEnded : std_logic := '0';
 
@@ -78,14 +78,22 @@ begin
 
     -- Toggle reset
     reset_n <= '0';
-    wait for 100 ns;
+    wait for 10 ns;
     reset_n <= '1';
-    wait for 100 ns;
+    wait for 10 ns;
 
-    -- EDIT Add stimuli here
-    wait for TbPeriod;
-    SW <= 10X"0";
+    -- reset was just zero (on), so our output should be zeros
 
+    assert HEX0 = (not H0) report "Test 0 (0x0, Reset) failed (0)";
+    assert HEX1 = (not H0) report "Test 0 (0x0, Reset) failed (1)";
+    assert HEX2 = (not H0) report "Test 0 (0x0, Reset) failed (2)";
+    assert HEX3 = (not H0) report "Test 0 (0x0, Reset) failed (3)";
+
+    
+    wait for 200*TbPeriod;
+    
+    -- input is zeros, show bcd should be all zero after fsm completes
+    -- calculations.
     assert HEX0 = (not H0) report "Test 1 (0x0, Decimal) failed (0)";
     assert HEX1 = (not H0) report "Test 1 (0x0, Decimal) failed (1)";
     assert HEX2 = (not H0) report "Test 1 (0x0, Decimal) failed (2)";
@@ -112,14 +120,15 @@ begin
 
     SW(9) <= '1';
 
-    wait for TbPeriod;
+    -- wait for a while to make reading easier
+    wait for 50*TbPeriod;
     
     assert HEX0 = (not H7) report "Test 4 (0d23, Hex) failed (0)";
     assert HEX1 = (not H1) report "Test 4 (0d23, Hex) failed (1)";
     assert HEX2 = (not H0) report "Test 4 (0d23, Hex) failed (2)";
     assert HEX3 = (not H0) report "Test 4 (0d23, Hex) failed (3)";
 
-    wait for 20*TbPeriod;
+    wait for 50*TbPeriod;
 
     SW <= 10d"255";
     SW(9) <= '0';
@@ -133,18 +142,19 @@ begin
 
     SW(9) <= '1';
 
-    wait for 20*TbPeriod;
+    wait for 50*TbPeriod;
 
     assert HEX0 = (not Hf) report "Test 5 (0d255, Hex) failed (0)";
     assert HEX1 = (not Hf) report "Test 5 (0d255, Hex) failed (1)";
     assert HEX2 = (not H0) report "Test 5 (0d255, Hex) failed (2)";
     assert HEX3 = (not H0) report "Test 5 (0d255, Hex) failed (3)";
 
-    wait for 20*TbPeriod;
+    wait for 50*TbPeriod;
 
-    reset_n <='0'; -- Nothing shoud happend to the output
+    reset_n <='0'; -- Nothing should happend to the output (reset
+                   -- shouldn't affect the mux)
 
-    wait for 20*TbPeriod;
+    wait for 50*TbPeriod;
 
     assert HEX0 = (not Hf) report "Test 6 (0d255, Hex) failed (0)";
     assert HEX1 = (not Hf) report "Test 6 (0d255, Hex) failed (1)";
@@ -153,8 +163,9 @@ begin
 
     SW(9) <= '0';
 
-    wait for 20*TbPeriod;
+    wait for 50*TbPeriod;
 
+    -- reset low and in bcd mode, so bcd should be zeros
     assert HEX0 = (not H0) report "Test 7 (0d255, Reset) failed (0)";
     assert HEX1 = (not H0) report "Test 7 (0d255, Reset) failed (1)";
     assert HEX2 = (not H0) report "Test 7 (0d255, Reset) failed (2)";
