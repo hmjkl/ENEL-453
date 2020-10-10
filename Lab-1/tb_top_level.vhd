@@ -31,7 +31,7 @@ architecture tb of tb_top_level is
     signal HEX4    : std_logic_vector (7 downto 0);
     signal HEX5    : std_logic_vector (7 downto 0);
 
-      -- modified seven segment values (include dp)
+      -- modified seven segment values (include dp = 0)
     constant H0 : STD_LOGIC_VECTOR(7 downto 0) := "00111111";
     constant H1 : STD_LOGIC_VECTOR(7 downto 0) := "00000110";
     constant H2 : STD_LOGIC_VECTOR(7 downto 0) := "01011011";
@@ -70,17 +70,13 @@ begin
 
     -- Clock generation
     TbClock <= not TbClock after TbPeriod/2 when TbSimEnded /= '1' else '0';
-
-    -- EDIT: Check that clk is really your main clock signal
     clk <= TbClock;
 
     stimuli : process
     begin
-        -- EDIT Adapt initialization as needed
         SW <= (others => '0');
 
-        -- Reset generation
-        -- EDIT: Check that reset_n is really your reset signal
+        -- Toggle reset
         reset_n <= '0';
         wait for 100 ns;
         reset_n <= '1';
@@ -96,8 +92,8 @@ begin
         assert HEX3 = (not H0) report "Test 1 (0x0, Decimal) failed (3)";
         
         SW <= 10X"7";
-        -- It takes about 60 cycles to convert. Add a few
-        -- to make reading easier...
+        -- Worst case it takes around 120 cycles to update bcd. Add a few
+        -- extra to make reading easier...
         wait for 200*TbPeriod;
 
         assert HEX0 = (not H7) report "Test 2 (0x7, Decimal) failed (0)";
@@ -145,6 +141,24 @@ begin
         assert HEX3 = (not H0) report "Test 5 (0d255, Hex) failed (3)";
 
         wait for 20*TbPeriod;
+
+        reset_n <='0'; -- Nothing shoud happend to the output
+
+        wait for 20*TbPeriod;
+
+        assert HEX0 = (not Hf) report "Test 6 (0d255, Hex) failed (0)";
+        assert HEX1 = (not Hf) report "Test 6 (0d255, Hex) failed (1)";
+        assert HEX2 = (not H0) report "Test 6 (0d255, Hex) failed (2)";
+        assert HEX3 = (not H0) report "Test 6 (0d255, Hex) failed (3)";
+
+        SW(9) <= '0';
+
+        wait for 20*TbPeriod;
+
+        assert HEX0 = (not H0) report "Test 7 (0d255, Reset) failed (0)";
+        assert HEX1 = (not H0) report "Test 7 (0d255, Reset) failed (1)";
+        assert HEX2 = (not H0) report "Test 7 (0d255, Reset) failed (2)";
+        assert HEX3 = (not H0) report "Test 7 (0d255, Reset) failed (3)";
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';
