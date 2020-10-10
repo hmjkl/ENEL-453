@@ -23,14 +23,19 @@ begin
 
     process begin
               assert false report "Starting testbench";
+
               in0 <= 16X"0"; in1 <= 16X"F"; msel <= '0'; wait for tdelay;
-              assert mout = in0 report "Passed test 1";
+              assert mout = in0 report "Failed test 1";
               in0 <= 16X"A"; in1 <= 16X"F0F1"; msel <= '0'; wait for tdelay;
-              assert mout = in0 report "Passed test 2";
+              assert mout = in0 report "Failed test 2";
               in0 <= 16X"0"; in1 <= 16X"F"; msel <= '1'; wait for tdelay;
-              assert mout = in1 report "Passed test 3";
+              assert mout = in1 report "Failed test 3";
               in0 <= 16X"A"; in1 <= 16X"F0F1"; msel <= '1'; wait for tdelay;
-              assert mout = in1 report "Passed test 4";
+              assert mout = in1 report "Failed test 4";
+              in0 <= 16X"FFFF"; in1 <= 16X"0000"; msel <= '1'; wait for tdelay;
+              assert mout = in1 report "Failed test 5";
+              in0 <= 16X"FFFF"; in1 <= 16X"0000"; msel <= '0'; wait for tdelay;
+              assert mout = in0 report "Failed test 5";
 
               assert false report "Testbench finished";
               wait;
