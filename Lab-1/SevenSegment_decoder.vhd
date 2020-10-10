@@ -3,24 +3,24 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity SevenSegment_decoder is
-    Port ( 
-           H        : out STD_LOGIC_VECTOR (7 downto 0);
-           input    : in  STD_LOGIC_VECTOR (3 downto 0);
-           DP,Blank : in  STD_LOGIC 
-          );
+  Port ( 
+    H        : out STD_LOGIC_VECTOR (7 downto 0);
+    input    : in  STD_LOGIC_VECTOR (3 downto 0);
+    DP,Blank : in  STD_LOGIC 
+    );
 end SevenSegment_decoder;
 
 architecture Behavioral of SevenSegment_decoder is
 
-signal seven_seg : STD_LOGIC_VECTOR (6 downto 0); 
+  signal seven_seg : STD_LOGIC_VECTOR (6 downto 0); 
 
 begin
-   Process (input,Blank)
-   begin  
+  Process (input,Blank)
+  begin  
 		if(Blank = '1') then
 			seven_seg(6 downto 0)<="0000000"; -- this blanks the display
 		else -- don't blank and display the required digit
-															  --  Segments, 0=LED off, 1=LED on
+      --  Segments, 0=LED off, 1=LED on
 			Case input is                         --  6543210                -- 7-Segment Display Segments
 				when "0000" => seven_seg(6 downto 0)<="0111111"; -- 0                  0  
 				when "0001" => seven_seg(6 downto 0)<="0000110"; -- 1                5   1
@@ -44,12 +44,12 @@ begin
 				When others => seven_seg(6 downto 0)<="0000000"; -- blank display
 			End Case;
 		end if;
-   End Process;
+  End Process;
 
 -- logic inversions in the 2 lines below is to turn the LEDs on when a 1 is given as a control signal,
 -- to make it easier for the designer
-H(6 downto 0) <= not seven_seg;
-H(7) <= not DP; -- if DP=0 LED off, if DP=1 LED on
+  H(6 downto 0) <= not seven_seg;
+  H(7) <= not DP; -- if DP=0 LED off, if DP=1 LED on
 
 end Behavioral;
 --   Another representation of the 7-segment display
