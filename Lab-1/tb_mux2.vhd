@@ -1,10 +1,10 @@
 library IEEE; use IEEE.STD_LOGIC_1164.all;
 
-entity mux2_tb is
+entity tb_mux2 is
 end;
 
 
-architecture sim of mux2_tb is
+architecture sim of tb_mux2 is
 
   component mux2 is
     port(d0, d1: in STD_LOGIC_VECTOR(15 downto 0);
