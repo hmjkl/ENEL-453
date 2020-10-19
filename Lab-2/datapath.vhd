@@ -5,8 +5,8 @@ entity datapath is
        reset_n                       : in STD_LOGIC;
        store_val                     : in STD_LOGIC;
        SW                            : in STD_LOGIC_VECTOR(9 downto 0);
-       LEDR                          : out STD_LOGIC_VECTOR (9 downto 0);
-       HEX0,HEX1,HEX2,HEX3,HEX4,HEX5 : out STD_LOGIC_VECTOR (7 downto 0));
+       LEDR                          : out STD_LOGIC_VECTOR(9 downto 0);
+       HEX0,HEX1,HEX2,HEX3,HEX4,HEX5 : out STD_LOGIC_VECTOR(7 downto 0));
 end;
 
 architecture Behavioral of datapath is
@@ -21,11 +21,12 @@ component mux4 is
        y  : out STD_LOGIC_VECTOR(sz - 1 downto 0));
 end component;
 
-component DFF_C is
+component reg is
   generic(sz : integer := 1);
   port(D : in STD_LOGIC_VECTOR(sz - 1 downto 0);
        we : in STD_LOGIC;
        clk : in STD_LOGIC;
+       reset_n : in STD_LOGIC;
        Q : out STD_LOGIC_VECTOR(sz - 1 downto 0));
 end component;
 
@@ -43,6 +44,8 @@ component SevenSegment is
 end component; 
 
 signal Q : STD_LOGIC_VECTOR(15 downto 0);
+signal store_val_inv : STD_LOGIC;
+
 signal bcd : STD_LOGIC_VECTOR(15 downto 0);
 signal mux_switch_in : STD_LOGIC_VECTOR(15 downto 0);
 signal bcd_switch_in : STD_LOGIC_VECTOR(12 downto 0);
@@ -51,6 +54,7 @@ signal hex_ins : STD_LOGIC_VECTOR(15 downto 0);
 
 signal Num_Hex0, Num_Hex1, Num_Hex2, Num_Hex3, Num_Hex4, Num_Hex5 : STD_LOGIC_VECTOR (3 downto 0):= (others=>'0');   
 signal DP_in, Blank:  STD_LOGIC_VECTOR (5 downto 0);
+
 
 begin
 
@@ -65,11 +69,15 @@ i_bcd_1 : binary_bcd
            binary => bcd_switch_in,
            bcd => bcd);
 
-i_DFF_1 : DFF_C
+
+store_val_inv <= (not store_val);
+
+i_reg_1 : reg
   generic map(sz => 16)
   port map(D => hex_ins,
-			  We => (not store_val),
+           We => store_val_inv,
            clk => clk,
+           reset_n => reset_n,
            Q => Q);
 
 i_mux4_1 : mux4
@@ -89,7 +97,6 @@ Num_Hex4 <= "0000";
 Num_Hex5 <= "0000";   
 DP_in    <= "000000";
 Blank    <= "110000";
-  
 
 i_SevenSegment_1 : SevenSegment
   port map(Num_Hex0 => Num_Hex0,
@@ -98,14 +105,13 @@ i_SevenSegment_1 : SevenSegment
            Num_Hex3 => Num_Hex3,
            Num_Hex4 => Num_Hex4,
            Num_Hex5 => Num_Hex5,
-           Hex0     => Hex0,
-           Hex1     => Hex1,
-           Hex2     => Hex2,
-           Hex3     => Hex3,
-           Hex4     => Hex4,
-           Hex5     => Hex5,
+           HEX0     => HEX0,
+           HEX1     => HEX1,
+           HEX2     => HEX2,
+           HEX3     => HEX3,
+           HEX4     => HEX4,
+           HEX5     => HEX5,
            DP_in    => DP_in,
            Blank    => Blank);
 
 end;
-  
