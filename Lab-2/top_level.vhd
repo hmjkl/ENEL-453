@@ -30,8 +30,28 @@ component synchronizer is
        Q : out STD_LOGIC_VECTOR(sz -1 downto 0));
 end component;
 
+component debounce is
+  generic(clk_freq    : INTEGER := 50_000_000;  --system clock frequency in Hz
+          stable_time : INTEGER := 10);         --time button must remain stable in ms
+  port(clk     : IN  STD_LOGIC;  --input clock
+       reset_n : IN  STD_LOGIC;  --asynchronous active low reset
+       button  : IN  STD_LOGIC;  --input signal to be debounced
+       result  : OUT STD_LOGIC); --debounced signal
+END component;
+
+
 signal synced_switches : STD_LOGIC_VECTOR(9 downto 0);
+signal debounced_store_val : STD_LOGIC;
+
 begin
+
+  i_debounce_1 : debounce
+    generic map(clk_freq    => 50_000_000,
+                stable_time => 30)
+    port map(clk => clk,
+             reset_n => reset_n,
+             button  => store_val,
+             result  => debounced_store_val);
 
 switch_sync : synchronizer
   generic map(sz => 10)
@@ -42,7 +62,7 @@ switch_sync : synchronizer
 i_datapath_1 : datapath
   port map(clk => clk,
            reset_n => reset_n,
-           store_val => store_val,
+           store_val => debounced_store_val,
            SW => synced_switches,
            LEDR => LEDR,
            Hex0 => Hex0,
