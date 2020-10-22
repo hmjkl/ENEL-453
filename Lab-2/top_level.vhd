@@ -42,15 +42,18 @@ END component;
 
 signal synced_switches : STD_LOGIC_VECTOR(9 downto 0);
 signal debounced_store_val : STD_LOGIC;
+signal inverted_store_val : STD_LOGIC;
 
 begin
+
+inverted_store_val <= (not store_val);
 
   i_debounce_1 : debounce
     generic map(clk_freq    => 50_000_000,
                 stable_time => 30)
     port map(clk => clk,
-             reset_n => '1',
-             button  => store_val,
+             reset_n => reset_n,
+             button  => inverted_store_val,
              result  => debounced_store_val);
 
 switch_sync : synchronizer
