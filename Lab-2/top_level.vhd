@@ -49,7 +49,7 @@ begin
     generic map(clk_freq    => 50_000_000,
                 stable_time => 30)
     port map(clk => clk,
-             reset_n => reset_n,
+             reset_n => '1',
              button  => store_val,
              result  => debounced_store_val);
 
