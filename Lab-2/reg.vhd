@@ -16,7 +16,7 @@ begin
     if (reset_n = '0') then
       Q <= (others => '0');
     elsif (rising_edge(clk)) then
-      if (We = '0') then
+      if (We = '1') then
         Q <= D;
       end if;
     end if;
