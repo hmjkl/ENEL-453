@@ -75,7 +75,7 @@ store_val_inv <= (not store_val);
 i_reg_1 : reg
   generic map(sz => 16)
   port map(D => hex_ins,
-           We => store_val_inv,
+           We => store_val,
            clk => clk,
            reset_n => reset_n,
            Q => Q);
