@@ -33,8 +33,23 @@ begin
 
     D <= (others => '0');
     wait for TbPeriod;
+    assert (Q /= X"0000") report "Failed test 1";
+
+    wait for TbPeriod/8;
+    D <= X"A0A0";
+    wait for TbPeriod/8;
     D <= X"FFFF";
+
+    wait for TbPeriod/4;
+    D <= X"0000";
+
     wait for TbPeriod/2;
+
+    assert (Q = X"0000") report "Failed test 2";
+
+    wait for TbPeriod;
+
+    assert (Q = X"FFFF") report "Failed test 3";
 
     TbSimEnded <= '1';
     wait;
