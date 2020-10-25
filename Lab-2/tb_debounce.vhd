@@ -34,17 +34,17 @@ signal Test_State : StateType; -- this creates a convenient and readable signal 
                                -- simulation, to know where in the testbench you are in the waveform
 signal error : STD_LOGIC := '0'; -- used to flag errors
 
-signal stable_time_tb :  time := 10 ms;
-signal some_delay     :  time := 3 ns;
+signal stable_time_tb :  time := 40 ms; -- greater value to give some lee-way
+signal some_delay     :  time := 5 ns;
 
    -- Clock period definitions
-constant clk_period : time := 10 ns; -- this is a 100 MHz clock
+constant clk_period : time := 20 ns; -- a 50 MHz clock (same as in quartus)
 
 begin
   
 debounce1 : debounce
-            generic map(clk_freq     => 50_000_000, -- change this value if different from default
-				             stable_time => 10)         -- change this value if different from default
+            generic map(clk_freq     => 50_000_000, -- use 50MHz clock
+				             stable_time => 30)         -- we want a 30 ms stable time
 				port map(
 				   clk     => clk,
 					button  => button,
