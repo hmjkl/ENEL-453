@@ -19,7 +19,6 @@ component datapath is
        reset_n                       : in STD_LOGIC;
        store_val                     : in STD_LOGIC;
        SW                            : in STD_LOGIC_VECTOR(9 downto 0);
-       LEDR                          : out STD_LOGIC_VECTOR (9 downto 0);
        HEX0,HEX1,HEX2,HEX3,HEX4,HEX5 : out STD_LOGIC_VECTOR (7 downto 0));
 end component;
 
@@ -46,6 +45,9 @@ signal inverted_store_val : STD_LOGIC;
 
 begin
 
+-- NOTE: the inverter should go before the debounce, as if it were put
+-- after the reset button would cause a write to the register due to
+-- prop. delay.
 inverted_store_val <= (not store_val);
 
   i_debounce_1 : debounce
@@ -67,7 +69,6 @@ i_datapath_1 : datapath
            reset_n => reset_n,
            store_val => debounced_store_val,
            SW => synced_switches,
-           LEDR => LEDR,
            Hex0 => Hex0,
            Hex1 => Hex1,
            Hex2 => Hex2,
@@ -75,5 +76,6 @@ i_datapath_1 : datapath
            Hex4 => Hex4,
            Hex5 => Hex5);
            
+LEDR <= SW;
   
 end;

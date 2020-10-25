@@ -5,7 +5,6 @@ entity datapath is
        reset_n                       : in STD_LOGIC;
        store_val                     : in STD_LOGIC;
        SW                            : in STD_LOGIC_VECTOR(9 downto 0);
-       LEDR                          : out STD_LOGIC_VECTOR(9 downto 0);
        HEX0,HEX1,HEX2,HEX3,HEX4,HEX5 : out STD_LOGIC_VECTOR(7 downto 0));
 end;
 
@@ -57,8 +56,6 @@ signal DP_in, Blank:  STD_LOGIC_VECTOR (5 downto 0);
 
 
 begin
-
-LEDR <= SW;
 
 mux_switch_in <= "00000000" & SW(7 downto 0);
 bcd_switch_in <= "00000" & SW(7 downto 0);
