@@ -1,0 +1,37 @@
+#+OPTIONS: toc:nil num:nil
+
+\begin{titlepage}
+\begin{centering}
+  {\Huge ENEL 453 Lab 2}
+
+  \bigskip
+
+  {\Large Group 48: Andrew Glenwright, Ahmed Elmalawany, Jordan Lonneberg}
+\end{centering}
+\end{titlepage}
+
+
+* RTL Schematic
+/Note: A last-minute change moving LEDR out of the datapath module was done to make the VHDL more idiomatic. This should not cause any functional differences or changes in the testbench, but does slightly change the RTL schematic by moving the LEDR switching out of datapath.vhd/
+
+[[./RTL.png]]
+
+
+* Slow 1200mV 85C Timing Summary
+
+[[./timing.png]]
+
+* Test Bench Results
+** top_level
+   [[./top_level.png]]
+** datapath
+   [[./datapath.png]]
+** reg
+   [[./reg.png]]
+** mux4
+   [[./reg.png]]
+** synchronizer
+   [[./sync.png]]
+** debounce
+   [[./debounce.png]]
+
