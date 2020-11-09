@@ -1,0 +1,5 @@
+ModelSim/*
+Quartus/*.json
+Quartus/.qsys_edit
+Quartus/output_files/
+
