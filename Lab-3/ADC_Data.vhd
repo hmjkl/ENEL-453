@@ -44,6 +44,17 @@ architecture rtl of ADC_Data is
       );
   end component;
 
+  component rec_averager is
+    generic(word_len : integer := 32;
+            len      : integer := 8);
+    port(clk : in     std_logic;
+         D   : in     std_logic_vector(word_len - 1 downto 0);
+         en  : in     std_logic;
+         Q   : buffer std_logic_vector(word_len - 1 downto 0);
+         sum : out    integer);
+  end component;
+
+
   component averager256 is  -- calculates moving average of 256 12-bit samples
     generic(
       N    : integer;
@@ -59,6 +70,9 @@ architecture rtl of ADC_Data is
   end component;
 
 
+  signal D               : std_logic_vector(11 downto 0);
+  signal sum             : integer;
+  signal ADC_out_ave_tmp : std_logic_vector(31 downto 0);
 begin
 
   voltage2distance_ins : voltage2distance_array2
@@ -75,17 +89,29 @@ begin
     ADC_out            => ADC_raw_temp  -- normally ADC_out_temp
     );
 
-  averager : averager256 generic map(  -- change here to modify the number of samples to average
-    N    => 8,  -- 8, 10, -- log2(number of samples to average over), e.g. N=8 is 2**8 = 256 samples
-    X    => 4,  -- 4, 5, -- X = log4(2**N), e.g. log4(2**8) = log4(4**4) = log4(256) = 4 (bit of resolution gained)
-    bits => 11)  -- 11 -- number of bits in the input data to be averaged
-    port map(
-      clk     => clk,
-      EN      => response_valid_out,
-      reset_n => reset_n,
-      Din     => ADC_raw_temp,
-      Q       => ADC_out_ave
-      );
+  --averager : averager256 generic map(  -- change here to modify the number of samples to average
+  --  N    => 8,  -- 8, 10, -- log2(number of samples to average over), e.g. N=8 is 2**8 = 256 samples
+  --  X    => 4,  -- 4, 5, -- X = log4(2**N), e.g. log4(2**8) = log4(4**4) = log4(256) = 4 (bit of resolution gained)
+  --  bits => 11)  -- 11 -- number of bits in the input data to be averaged
+  --  port map(
+  --    clk     => clk,
+  --    EN      => response_valid_out,
+  --    reset_n => reset_n,
+  --    Din     => ADC_raw_temp,
+  --    Q       => ADC_out_ave
+  --    );
+
+  averager : rec_averager
+    generic map(word_len => 12,
+                len      => 256)
+    port map(clk => clk,
+             D   => D,
+             en  => response_valid_out,
+             Q   => open,
+             sum => sum);
+
+  ADC_out_ave_tmp <= std_logic_vector(to_unsigned(sum, ADC_out_ave_tmp'length));
+  ADC_out_ave     <= ADC_out_ave_tmp(19 downto 8);
 
 
   -- Here we do not append a zero so that the voltage output can range from 0
@@ -95,6 +121,7 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
+      D       <= ADC_raw_temp;
       ADC_out <= ADC_out_ave;
       ADC_raw <= ADC_raw_temp;
       voltage <= voltage_temp;
