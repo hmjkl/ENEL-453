@@ -12,8 +12,7 @@ entity datapath is
        HEX2     : out std_logic_vector(7 downto 0);
        HEX3     : out std_logic_vector(7 downto 0);
        HEX4     : out std_logic_vector(7 downto 0);
-       HEX5     : out std_logic_vector (7 downto 0)
-       );
+       HEX5     : out std_logic_vector (7 downto 0));
 end;
 
 architecture Behavioral of datapath is
@@ -21,11 +20,10 @@ architecture Behavioral of datapath is
   component ADC_Data is
     port(clk      : in  std_logic;
          reset_n  : in  std_logic;      -- active-low
-         voltage  : out std_logic_vector(12 downto 0);  -- Voltage in milli-volts
-         distance : out std_logic_vector(12 downto 0);  -- distance in 10^-4 cm (e.g. if distance = 33 cm, then 3300 is the value)
-         ADC_raw  : out std_logic_vector(11 downto 0);  -- the latest 12-bit ADC value
-         ADC_out  : out std_logic_vector(11 downto 0)  -- moving average of ADC value, over 256 samples,
-         );  -- number of samples defined by the averager module
+         voltage  : out std_logic_vector(12 downto 0);
+         distance : out std_logic_vector(12 downto 0);
+         ADC_raw  : out std_logic_vector(11 downto 0);
+         ADC_out  : out std_logic_vector(11 downto 0));
   end component;
 
   signal voltage  : std_logic_vector(12 downto 0);
@@ -71,8 +69,7 @@ architecture Behavioral of datapath is
          HEX2      : out std_logic_vector(7 downto 0);
          HEX3      : out std_logic_vector(7 downto 0);
          HEX4      : out std_logic_vector(7 downto 0);
-         HEX5      : out std_logic_vector (7 downto 0)
-         );
+         HEX5      : out std_logic_vector (7 downto 0));
   end component;
 
   signal DP_in    : std_logic_vector(5 downto 0) := (others => '0');
@@ -90,8 +87,7 @@ architecture Behavioral of datapath is
          en      : in  std_logic;
          reset_n : in  std_logic;
          D       : in  std_logic_vector(sz - 1 downto 0);
-         Q       : out std_logic_vector(sz -1 downto 0)
-         );
+         Q       : out std_logic_vector(sz -1 downto 0));
   end component;
 
   signal hex_ins : std_logic_vector(15 downto 0);
@@ -108,8 +104,6 @@ architecture Behavioral of datapath is
   signal sw_bcd       : std_logic_vector(15 downto 0);
 
 begin
-
-  LEDR <= SW;
 
   i_ADC_data_1 : ADC_Data
     port map(clk      => clk,
