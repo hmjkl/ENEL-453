@@ -6,7 +6,6 @@ entity datapath is
        SW       : in  std_logic_vector(9 downto 0);
        reset_n  : in  std_logic;
        freeze_n : in  std_logic;
-       LEDR     : out std_logic_vector(9 downto 0);
        HEX0     : out std_logic_vector(7 downto 0);
        HEX1     : out std_logic_vector(7 downto 0);
        HEX2     : out std_logic_vector(7 downto 0);
@@ -47,11 +46,12 @@ architecture Behavioral of datapath is
   signal d3 : std_logic_vector(15 downto 0);
   signal y  : std_logic_vector(15 downto 0);
 
-  signal d0_data : std_logic_vector(6 downto 0);
-  signal d1_data : std_logic_vector(6 downto 0);
-  signal d2_data : std_logic_vector(6 downto 0);
-  signal d3_data : std_logic_vector(6 downto 0);
-  signal y_data  : std_logic_vector(6 downto 0);
+  signal d0_data            : std_logic_vector(6 downto 0);
+  signal d1_data            : std_logic_vector(6 downto 0);
+  signal d2_data            : std_logic_vector(6 downto 0);
+  signal d3_data            : std_logic_vector(6 downto 0);
+  signal y_aux_data         : std_logic_vector(6 downto 0);
+  signal seven_segment_conf : std_logic_vector(6 downto 0);
 
 
   component SevenSegment is
@@ -139,25 +139,6 @@ begin
              s  => SW(9 downto 8),
              y  => y);
 
--- mux for selecting DP and autoblank for the seven segment.
--- input pattern of: {DP_in,AutoBlank}.
--- @FIXME: better naming
-
-  d0_data <= "0000000";
-  d1_data <= "0001001";
-  d2_data <= "0010001";
-  d3_data <= "0000001";
-
-  i_mux4_2 : mux4
-    generic map(sz => 7)
-    port map(d0 => d0_data,
-             d1 => d1_data,
-             d2 => d2_data,
-             d3 => d3_data,
-             s  => SW(9 downto 8),
-             y  => y_data);
-
-
   i_DFlip_1 : DFlip
     generic map(sz => 16)
     port map(clk     => clk,
@@ -174,13 +155,43 @@ begin
   Num_Hex4 <= (others => '0');
   Num_Hex5 <= (others => '0');
 
+
+
+-- mux for selecting DP and autoblank for the seven segment.
+-- input pattern of: {DP_in,AutoBlank}.
+-- @FIXME: better naming
+
+  d0_data <= "0000000";
+  d1_data <= "0001001";
+  d2_data <= "0010001";
+  d3_data <= "0000001";
+
+  i_mux4_2 : mux4
+    generic map(sz => 7)
+    port map(d0 => d0_data,
+             d1 => d1_data,
+             d2 => d2_data,
+             d3 => d3_data,
+             s  => SW(9 downto 8),
+             y  => y_aux_data);
+
+
+  i_DFlip_2 : DFlip
+    generic map(sz => 7)
+    port map(clk     => clk,
+             en      => freeze_n,
+             reset_n => reset_n,
+             D       => y_aux_data,
+             Q       => seven_segment_conf);
+
+
   blank <= "110000";
-  DP_in <= y_data(6 downto 1);
+  DP_in <= seven_segment_conf(6 downto 1);
 
   i_SevenSegment_1 : SevenSegment
     port map(DP_in     => DP_in,
              Blank     => Blank,
-             AutoBlank => y_data(0),
+             AutoBlank => seven_segment_conf(0),
              Num_Hex0  => num_Hex0,
              Num_Hex1  => num_Hex1,
              Num_Hex2  => num_Hex2,
