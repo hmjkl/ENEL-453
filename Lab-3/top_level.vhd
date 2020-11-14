@@ -21,6 +21,7 @@ end;
 
 architecture Behavioral of top_level is
 
+
   component datapath is
     port(clk      : in  std_logic;
          SW       : in  std_logic_vector(9 downto 0);
@@ -38,12 +39,13 @@ architecture Behavioral of top_level is
 
 begin
 
+  LEDR <= SW;
+
   i_datapath_1 : datapath
     port map(clk      => clk,
              SW       => SW,
              reset_n  => reset_n,
              freeze_n => freeze_n,
-             LEDR     => LEDR,
              HEX0     => HEX0,
              HEX1     => HEX1,
              HEX2     => HEX2,
