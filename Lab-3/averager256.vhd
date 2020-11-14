@@ -46,7 +46,7 @@ begin
       LoopA1 : for i in 1 to 2**N loop
         REG_ARRAY(i) <= Zeros;
       end loop LoopA1;
-      Q <= (others => '0');
+--      Q <= (others => '0');
       -- Q_high_res <= (others => '0');
 
     elsif rising_edge(clk) then
@@ -56,11 +56,13 @@ begin
         LoopA2 : for i in 1 to 2**N-1 loop
           REG_ARRAY(i+1) <= REG_ARRAY(i);
         end loop LoopA2;
-        Q <= tmplast(N+bits downto N);
         -- Q_high_res <= tmplast(N+bits downto N-X);
 
       end if;
     end if;
+
+    
+        Q <= tmplast(N+bits downto N);
   end process shift_reg;
 
   LoopB1 : for i in 1 to (2**N)/2 generate
