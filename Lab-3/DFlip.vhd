@@ -15,9 +15,11 @@ architecture Behavioral of DFlip is
 
 begin
 
-  process(clk)
+  process(clk, reset_n)
   begin
-    if rising_edge(clk) then
+    if reset_n = '0' then
+      Q <= (others => '0');
+    elsif rising_edge(clk) then
       if en = '1' then
         Q <= D;
       end if;
