@@ -1,9 +1,6 @@
--- Testbench automatically generated online
--- at https://vhdl.lapinoo.net
--- Generation date : 22.10.2020 02:59:01 UTC
-
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 entity tb_ADC_Data is
 end tb_ADC_Data;
@@ -17,7 +14,6 @@ architecture tb of tb_ADC_Data is
               distance         : out std_logic_vector (12 downto 0);
               ADC_raw          : out std_logic_vector (11 downto 0);
               ADC_out          : out std_logic_vector (11 downto 0)
-              -- ADC_out_high_res : out std_logic_vector (15 downto 0)
 				  );
     end component;
 
@@ -27,7 +23,6 @@ architecture tb of tb_ADC_Data is
     signal distance         : std_logic_vector (12 downto 0);
     signal ADC_raw          : std_logic_vector (11 downto 0);
     signal ADC_out          : std_logic_vector (11 downto 0);
---    signal ADC_out_high_res : std_logic_vector (15 downto 0);
 
     constant TbPeriod : time := 20 ns; -- EDIT Put right period here
     signal TbClock : std_logic := '0';
@@ -65,6 +60,19 @@ begin
         -- EDIT Add stimuli here
         wait for 100 * TbPeriod;
         wait for 500 * 980 ns;
+
+        -- to figure out the expected stable output, we need to find
+        -- the sum of each state. If we say that Y=sum of all state
+        -- values = 2240+2244+2242+2240+2247+2245+2243+2246+2246+2245+2247
+        -- Next, if we have 11 states and a 256 long shift_reg, then our
+        -- states divide into 256 23 times with a remainder of 3. So our
+        -- average will be given by (23*Y + 3 adjacent states)/256. However the
+        -- math works out that any 3 adjacent state add to 6735, so avg shold
+        -- be (23*24685+6735)/256 = 2244.
+        assert ADC_out = std_logic_vector(to_unsigned(2244,ADC_out'length)) report "Incorrect average result";
+
+        -- Just to show the output is stable, lets wait some more time.
+        wait for 5000 ns;
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';
