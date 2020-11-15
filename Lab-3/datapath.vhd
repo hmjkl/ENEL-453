@@ -53,11 +53,20 @@ architecture Behavioral of datapath is
   signal y_aux_data         : std_logic_vector(6 downto 0);
   signal seven_segment_conf : std_logic_vector(6 downto 0);
 
+  component blanker is
+    port(en        :     std_logic;
+         blank_in  : in  std_logic_vector(5 downto 0);
+         DP_in     : in  std_logic_vector(5 downto 0);
+         D         : in  std_logic_vector(23 downto 0);
+         blank_out : out std_logic_vector(5 downto 0));
+  end component;
+
+  signal blank_out : std_logic_vector(5 downto 0);
+  signal blank_D: std_logic_vector(23 downto 0);
 
   component SevenSegment is
     port(DP_in     : in  std_logic_vector(5 downto 0);
          Blank     : in  std_logic_vector (5 downto 0);
-         AutoBlank : in  std_logic;
          Num_Hex0  : in  std_logic_vector(3 downto 0);
          Num_Hex1  : in  std_logic_vector(3 downto 0);
          Num_Hex2  : in  std_logic_vector(3 downto 0);
@@ -184,14 +193,21 @@ begin
              D       => y_aux_data,
              Q       => seven_segment_conf);
 
-
-  blank <= "110000";
+  blank_D <= "00000000" & hex_ins;
   DP_in <= seven_segment_conf(6 downto 1);
+
+  i_blanker : blanker
+    port map(en        => seven_segment_conf(0),
+             blank_in  => Blank,
+             D         => blank_D,
+             DP_in     => seven_segment_conf(6 downto 1),
+             blank_out => blank_out);
+
+  Blank <= "110000";
 
   i_SevenSegment_1 : SevenSegment
     port map(DP_in     => DP_in,
-             Blank     => Blank,
-             AutoBlank => seven_segment_conf(0),
+             Blank     => blank_out,
              Num_Hex0  => num_Hex0,
              Num_Hex1  => num_Hex1,
              Num_Hex2  => num_Hex2,
