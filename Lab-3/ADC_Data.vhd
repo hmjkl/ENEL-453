@@ -31,8 +31,8 @@ architecture rtl of ADC_Data is
 --******************************************************************************************************************************************
 -- Comment out one of the two lines below, to select whether you want RTL (for DE10-Lite board) or simulation (for testbench) for the ADC **
 --******************************************************************************************************************************************
-  for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(RTL);  -- selects the RTL architecture
---for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(simulation); -- selects the simulation architecture
+--for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(RTL);  -- selects the RTL architecture
+for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(simulation); -- selects the simulation architecture
 --******************************************************************************************************************************************
 
   component voltage2distance_array2 is  -- converts ADC's voltage value to distance value
@@ -57,6 +57,7 @@ architecture rtl of ADC_Data is
 
 component averager is
   generic(word_len : integer := 32;
+          hi_res_bits : integer := 4;
           log2len  : integer := 8);
   port(clk : in std_logic;
        en  :    in std_logic;
@@ -114,6 +115,7 @@ begin
 
   i_averager : averager
     generic map(word_len => 12,
+                hi_res_bits => 0,
                 log2len => 8)
     port map(clk => clk,
              en => response_valid_out,
