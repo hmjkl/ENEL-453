@@ -2,7 +2,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 -- This is the default LUT_pkg.vhd. It is used for the testbench code (not the
--- RTL).
+-- RTL). The real LUT_pkg is called "LUT_pkg.vhd"
 package LUT_pkg is
 
 type array_1d is array (0 to 4095) of integer;
