@@ -31,8 +31,8 @@ architecture rtl of ADC_Data is
 --******************************************************************************************************************************************
 -- Comment out one of the two lines below, to select whether you want RTL (for DE10-Lite board) or simulation (for testbench) for the ADC **
 --******************************************************************************************************************************************
---for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(RTL);  -- selects the RTL architecture
-for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(simulation); -- selects the simulation architecture
+for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(RTL);  -- selects the RTL architecture
+--for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(simulation); -- selects the simulation architecture
 --******************************************************************************************************************************************
 
   component voltage2distance_array2 is  -- converts ADC's voltage value to distance value
@@ -44,6 +44,8 @@ for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(simu
       );
   end component;
 
+  -- alternative summer that uses recursion to build a adder tree. Needs a
+  -- bitshift on the output to work correctly
   component rec_averager is
     generic(word_len : integer := 32;
             len      : integer := 8);
@@ -63,7 +65,6 @@ component averager is
        en  :    in std_logic;
        reset_n : in std_logic;
        D   : in std_logic_vector(word_len - 1 downto 0);
-       Q   : out std_logic_vector(word_len - 1 downto 0);
        avg : out std_logic_vector(word_len - 1 downto 0));
 end component;
 
@@ -82,9 +83,9 @@ end component;
       );
   end component;
 
-
-  signal sum             : integer;
-  signal ADC_out_ave_temp : std_logic_vector(31 downto 0);
+  -- NOTE: uncomment these lines if you want to use the recursive summer.
+  --signal sum             : integer;
+  --signal ADC_out_ave_temp : std_logic_vector(31 downto 0);
 begin
 
   voltage2distance_ins : voltage2distance_array2
@@ -115,13 +116,12 @@ begin
 
   i_averager : averager
     generic map(word_len => 12,
-                hi_res_bits => 0,
+                hi_res_bits => 0, -- we do not need these bits for this lab
                 log2len => 8)
     port map(clk => clk,
              en => response_valid_out,
              reset_n => reset_n,
              D => ADC_raw_temp,
-             Q => open,
              avg => ADC_out_ave);
   
 --  averager : rec_averager
@@ -140,15 +140,22 @@ begin
 
 
   -- Here we do not append a zero so that the voltage output can range from 0
-  -- -> 5000.
-  voltage_temp <= std_logic_vector(resize(unsigned(ADC_out_ave)*2500*2/(2**12), voltage_temp'length));  -- Converting ADC_out_ave, a 12-bit binary value, to voltage value (in mV), using type conversions
+  -- -> 5000. This is not needed particularly for this project, but is useful
+  -- for debugging the project using a voltage divider.
+  --  voltage_temp <= std_logic_vector(resize(unsigned(ADC_out_ave)*2500*2/(2**12), voltage_temp'length));  -- Converting ADC_out_ave, a 12-bit binary value, to voltage value (in mV), using type conversions
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      ADC_out <= ADC_out_ave;
-      ADC_raw <= ADC_raw_temp;
-      voltage <= voltage_temp;
-    end if;
-  end process;
+  -- This is the line use for production. It chops off a zero.
+-- Converting ADC_out_ave, a 12-bit binary value, to voltage value (in mV), using type conversions
+voltage_temp <= '0' & std_logic_vector(resize(unsigned(ADC_out_ave)*2500*2/(2**12),voltage_temp'length-1));  -- Converting ADC_out_ave, a 12-bit binary value, to voltage value (in mV), using type conversions
+  ADC_out <= ADC_out_ave;
+  ADC_raw <= ADC_raw_temp;
+  voltage <= voltage_temp;
+  --process(clk)
+  --begin
+  --  if rising_edge(clk) then
+  --    ADC_out <= ADC_out_ave;
+  --    ADC_raw <= ADC_raw_temp;
+  --    voltage <= voltage_temp;
+  --  end if;
+  --end process;
 end rtl;
