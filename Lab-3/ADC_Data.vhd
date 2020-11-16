@@ -46,16 +46,16 @@ for ADC_ins : ADC_Conversion_wrapper use entity work.ADC_Conversion_wrapper(RTL)
 
   -- alternative summer that uses recursion to build a adder tree. Needs a
   -- bitshift on the output to work correctly
-  component rec_averager is
-    generic(word_len : integer := 32;
-            len      : integer := 8);
-    port(clk : in     std_logic;
-         reset_n : in std_logic;
-         D   : in     std_logic_vector(word_len - 1 downto 0);
-         en  : in     std_logic;
-         Q   : buffer std_logic_vector(word_len - 1 downto 0);
-         sum : out    integer);
-  end component;
+  --component rec_averager is
+  --  generic(word_len : integer := 32;
+  --          len      : integer := 8);
+  --  port(clk : in     std_logic;
+  --       reset_n : in std_logic;
+  --       D   : in     std_logic_vector(word_len - 1 downto 0);
+  --       en  : in     std_logic;
+  --       Q   : buffer std_logic_vector(word_len - 1 downto 0);
+  --       sum : out    integer);
+  --end component;
 
 component averager is
   generic(word_len : integer := 32;
@@ -69,19 +69,19 @@ component averager is
 end component;
 
 
-  component averager256 is  -- calculates moving average of 256 12-bit samples
-    generic(
-      N    : integer;
-      X    : integer;
-      bits : integer);
-    port (
-      clk     : in  std_logic;
-      EN      : in  std_logic;  -- takes a new sample when high for each clock cycle
-      reset_n : in  std_logic;          -- active-low
-      Din     : in  std_logic_vector(bits downto 0);  -- input sample for moving average calculation
-      Q       : out std_logic_vector(bits downto 0)  -- 12-bit moving average of 256 samples
-      );
-  end component;
+  --component averager256 is  -- calculates moving average of 256 12-bit samples
+  --  generic(
+  --    N    : integer;
+  --    X    : integer;
+  --    bits : integer);
+  --  port (
+  --    clk     : in  std_logic;
+  --    EN      : in  std_logic;  -- takes a new sample when high for each clock cycle
+  --    reset_n : in  std_logic;          -- active-low
+  --    Din     : in  std_logic_vector(bits downto 0);  -- input sample for moving average calculation
+  --    Q       : out std_logic_vector(bits downto 0)  -- 12-bit moving average of 256 samples
+  --    );
+  --end component;
 
   -- NOTE: uncomment these lines if you want to use the recursive summer.
   --signal sum             : integer;
