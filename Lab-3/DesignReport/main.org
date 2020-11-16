@@ -1,0 +1,51 @@
+#+OPTIONS: toc:nil num:nil
+#+LATEX_HEADER:  \usepackage[left=1in, right = 1in]{geometry}
+
+\begin{titlepage}
+\begin{centering}
+  {\Huge ENEL 453 Lab 3}
+
+  \bigskip
+
+  {\Large Group 48: Andrew Glenwright, Ahmed Elmalawany, Jordan Lonneberg}
+\end{centering}
+\end{titlepage}
+
+* RTL Schematic
+You may have to zoom in to see the letters. 
+[[./RTL.png]]
+
+* Slow 1200mV 85C Time Summary
+
+[[./timing.png]]
+
+* Messages Window
+
+[[./report.png]]
+
+* Test Bench Results
+** top level
+   [[./top_level.png]]
+** DPunit
+/NOTE: this is what controls both the decimal point location, and if autoblanking should be enabled/
+[[./DPunit.png]]
+** Blanker
+/This device blanks leading zeros/
+[[./blanker.png]]
+** Averager
+In this testbench, "avg" and "D" are shown as unsigned
+integers. avg_precise abd avg_DP are in hex. avg_DP represents the
+sixteenths place of the hex output, avg is the whole number portion
+of the output, and avg_precise is total hex output which includes both
+the whole number portion and the avg_DP fraction concatenated.
+[[./averager.png]]
+** ADC Data
+[[./ADC_data.png]]
+** Old Test Benches
+These are test benches from older labs that were reused for this one.
+*** Synchronizer
+[[./sync.png]]
+*** Debounce
+[[./debounce.png]]
+*** mux4
+[[./mux4.png]]
