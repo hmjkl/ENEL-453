@@ -5,7 +5,10 @@ use ieee.numeric_std.all;
 -- note: this averager always has high res bits enabled, but they can be set
 -- to 0 to exclude them (as we have done in ADC_data). It should be noted that
 -- non-zero high-res bits will shift the output magnitude, so if used the DP on
--- the display would need to shift.
+-- the display would need to shift. This also has an "en" signal added to each
+-- of the adder DFFs, which comes with a small cost of about 0.5 MHz, but makes
+-- writing the testbenches a breeze and seems to reduce jitter on the display.
+
 entity averager is
   generic(word_len : integer := 32;
           log2len  : integer := 8;
