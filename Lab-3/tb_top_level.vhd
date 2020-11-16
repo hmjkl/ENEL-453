@@ -169,7 +169,7 @@ begin
     -- TESTING HOLD (DISPLAY SHOULD NOT CHANGE)
     freeze_n <= '0';
     wait for dt;
-    SW(9 downto 8) <= "11";
+    SW(9 downto 8) <= "00";
     SW(7 downto 0) <= X"ED";
     wait for smalltime;
     assert HEX0_expected = HEX0 report "Failed display freeze (HEX0)";
