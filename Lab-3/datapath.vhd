@@ -46,10 +46,11 @@ architecture Behavioral of datapath is
   signal d3 : std_logic_vector(15 downto 0);
   signal y  : std_logic_vector(15 downto 0);
 
-  signal d0_data            : std_logic_vector(6 downto 0);
-  signal d1_data            : std_logic_vector(6 downto 0);
-  signal d2_data            : std_logic_vector(6 downto 0);
-  signal d3_data            : std_logic_vector(6 downto 0);
+  component DPunit is
+    port(s : in  std_logic_vector(1 downto 0);
+         y : out std_logic_vector(6 downto 0));
+  end component;
+
   signal y_aux_data         : std_logic_vector(6 downto 0);
   signal seven_segment_conf : std_logic_vector(6 downto 0);
 
@@ -62,23 +63,23 @@ architecture Behavioral of datapath is
   end component;
 
   signal blank_out : std_logic_vector(5 downto 0);
-  signal blank_D: std_logic_vector(23 downto 0);
+  signal blank_D   : std_logic_vector(23 downto 0);
 
   component SevenSegment is
-    port(DP_in     : in  std_logic_vector(5 downto 0);
-         Blank     : in  std_logic_vector (5 downto 0);
-         Num_Hex0  : in  std_logic_vector(3 downto 0);
-         Num_Hex1  : in  std_logic_vector(3 downto 0);
-         Num_Hex2  : in  std_logic_vector(3 downto 0);
-         Num_Hex3  : in  std_logic_vector(3 downto 0);
-         Num_Hex4  : in  std_logic_vector(3 downto 0);
-         Num_Hex5  : in  std_logic_vector(3 downto 0);
-         HEX0      : out std_logic_vector(7 downto 0);
-         HEX1      : out std_logic_vector(7 downto 0);
-         HEX2      : out std_logic_vector(7 downto 0);
-         HEX3      : out std_logic_vector(7 downto 0);
-         HEX4      : out std_logic_vector(7 downto 0);
-         HEX5      : out std_logic_vector (7 downto 0));
+    port(DP_in    : in  std_logic_vector(5 downto 0);
+         Blank    : in  std_logic_vector (5 downto 0);
+         Num_Hex0 : in  std_logic_vector(3 downto 0);
+         Num_Hex1 : in  std_logic_vector(3 downto 0);
+         Num_Hex2 : in  std_logic_vector(3 downto 0);
+         Num_Hex3 : in  std_logic_vector(3 downto 0);
+         Num_Hex4 : in  std_logic_vector(3 downto 0);
+         Num_Hex5 : in  std_logic_vector(3 downto 0);
+         HEX0     : out std_logic_vector(7 downto 0);
+         HEX1     : out std_logic_vector(7 downto 0);
+         HEX2     : out std_logic_vector(7 downto 0);
+         HEX3     : out std_logic_vector(7 downto 0);
+         HEX4     : out std_logic_vector(7 downto 0);
+         HEX5     : out std_logic_vector (7 downto 0));
   end component;
 
   signal DP_in    : std_logic_vector(5 downto 0) := (others => '0');
@@ -110,7 +111,6 @@ architecture Behavioral of datapath is
 
   signal voltage_bcd  : std_logic_vector(15 downto 0);
   signal distance_bcd : std_logic_vector(15 downto 0);
-  signal sw_bcd       : std_logic_vector(15 downto 0);
 
 begin
 
@@ -165,25 +165,9 @@ begin
   Num_Hex5 <= (others => '0');
 
 
-
--- mux for selecting DP and autoblank for the seven segment.
--- input pattern of: {DP_in,AutoBlank}.
--- @FIXME: better naming
-
-  d0_data <= "0000000";
-  d1_data <= "0001001";
-  d2_data <= "0010001";
-  d3_data <= "0000001";
-
-  i_mux4_2 : mux4
-    generic map(sz => 7)
-    port map(d0 => d0_data,
-             d1 => d1_data,
-             d2 => d2_data,
-             d3 => d3_data,
-             s  => SW(9 downto 8),
-             y  => y_aux_data);
-
+  i_DPunit_1 : DPunit
+    port map(s => SW(9 downto 8),
+             y => y_aux_data);
 
   i_DFlip_2 : DFlip
     generic map(sz => 7)
@@ -194,7 +178,7 @@ begin
              Q       => seven_segment_conf);
 
   blank_D <= "00000000" & hex_ins;
-  DP_in <= seven_segment_conf(6 downto 1);
+  DP_in   <= seven_segment_conf(6 downto 1);
 
   i_blanker : blanker
     port map(en        => seven_segment_conf(0),
@@ -206,19 +190,19 @@ begin
   Blank <= "110000";
 
   i_SevenSegment_1 : SevenSegment
-    port map(DP_in     => DP_in,
-             Blank     => blank_out,
-             Num_Hex0  => num_Hex0,
-             Num_Hex1  => num_Hex1,
-             Num_Hex2  => num_Hex2,
-             Num_Hex3  => num_Hex3,
-             Num_Hex4  => num_Hex4,
-             Num_Hex5  => num_Hex5,
-             HEX0      => HEX0,
-             HEX1      => HEX1,
-             HEX2      => HEX2,
-             HEX3      => HEX3,
-             HEX4      => HEX4,
-             HEX5      => HEX5);
+    port map(DP_in    => DP_in,
+             Blank    => blank_out,
+             Num_Hex0 => num_Hex0,
+             Num_Hex1 => num_Hex1,
+             Num_Hex2 => num_Hex2,
+             Num_Hex3 => num_Hex3,
+             Num_Hex4 => num_Hex4,
+             Num_Hex5 => num_Hex5,
+             HEX0     => HEX0,
+             HEX1     => HEX1,
+             HEX2     => HEX2,
+             HEX3     => HEX3,
+             HEX4     => HEX4,
+             HEX5     => HEX5);
 
 end;
