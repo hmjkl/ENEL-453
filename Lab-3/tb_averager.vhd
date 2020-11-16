@@ -15,7 +15,6 @@ architecture tb of tb_averager is
          en      : in  std_logic;
          reset_n : in  std_logic;
          D       : in  std_logic_vector(word_len - 1 downto 0);
-         Q       : out std_logic_vector(word_len - 1 downto 0);
          avg     : out std_logic_vector(hi_res_bits + word_len - 1 downto 0));
   end component;
 
@@ -23,7 +22,6 @@ architecture tb of tb_averager is
   signal en      : std_logic := '1';
   signal reset_n : std_logic := '0';
   signal D       : std_logic_vector(11 downto 0);
-  signal Q       : std_logic_vector(11 downto 0);
   signal avg     : std_logic_vector(11 downto 0); -- the averager result before the
                                                   -- decimal point
   signal avg_DP : std_logic_vector(3 downto 0); -- the averager result after
@@ -47,7 +45,6 @@ begin
              en      => en,
              reset_n => reset_n,
              D       => D,
-             Q       => open,
              avg     => avg_precise);
 
   avg <= avg_precise(avg_precise'high downto 4);
@@ -87,7 +84,6 @@ begin
     
     wait for 16*TbPeriod;
 
-    wait for TbPeriod;
 
     -- test asynchronous reset
     reset_n <= '0';
