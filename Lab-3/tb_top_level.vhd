@@ -33,13 +33,13 @@ architecture tb of tb_top_level is
   signal HEX4     : std_logic_vector(7 downto 0);
   signal HEX5     : std_logic_vector(7 downto 0);
 
-  constant tbperiod : time      := 20 ns;
+  constant tbperiod  : time      := 20 ns;
   -- We need a very long wait time because of debounce.
-  constant dt       : time      := 31 ms;
+  constant dt        : time      := 31 ms;
   -- Shorter wait time used for non-critical times and used to make
   -- viewing easier.
   constant smalltime : time      := 2.5 ms;
-  signal TbSimEnded : std_logic := '0';
+  signal TbSimEnded  : std_logic := '0';
 
   -- constants that will help find the expected HEX output
   constant H0    : std_logic_vector(7 downto 0) := "00111111";
@@ -61,14 +61,6 @@ architecture tb of tb_top_level is
   constant DP    : std_logic_vector(7 downto 0) := "10000000";
   constant BLANK : std_logic_vector(7 downto 0) := "00000000";
 
-  signal HEX0_expected : std_logic_vector(7 downto 0);
-  signal HEX1_expected : std_logic_vector(7 downto 0);
-  signal HEX2_expected : std_logic_vector(7 downto 0);
-  signal HEX3_expected : std_logic_vector(7 downto 0);
-  signal HEX4_expected : std_logic_vector(7 downto 0);
-  signal HEX5_expected : std_logic_vector(7 downto 0);
-
-
 begin
 
   clk <= not clk after TbPeriod/2 when TbSimEnded /= '1' else '0';
@@ -89,23 +81,10 @@ begin
   process
   begin
     -- TESTING RESET BEHAVIOR
-    reset_n  <= '0';
-    SW       <= (0 => '1', 1 => '1', others => '0');
-    freeze_n <= '1';
-    HEX0_expected <= (not H0);
-    HEX1_expected <= (not H0);
-    HEX2_expected <= (not H0);
-    HEX3_expected <= (not H0);
-    HEX4_expected <= (not blank);
-    HEX5_expected <= (not blank);
-    wait for smalltime;
-        assert HEX0_expected = HEX0 report "Failed display reset test (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed display reset test (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed display reset test (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed display reset test (HEX3)";
-    assert HEX4_expected = HEX4 report "Failed display reset test (HEX4)";
-    assert HEX5_expected = HEX5 report "Failed display reset test (HEX5)";
-    
+    reset_n       <= '0';
+    SW            <= (0 => '1', 1 => '1', others => '0');
+    freeze_n      <= '1';
+    wait for dt;
 
     -- TESTING DISPLAY MODE 3 (HEX ADC VALUE)
     reset_n        <= '1';
@@ -116,78 +95,68 @@ begin
     -- 2242, so we will assert this. Using a hex calculator, we expect a value
     -- of 8c4 on the display. Not that we need to invert our signal
     -- because the segments turn on when the bits are zero.
-    HEX0_expected <= (not H4);
-    HEX1_expected <= (not Hc);
-    HEX2_expected <= (not H8);
-    HEX3_expected <= (not blank); -- AUTOBLANKING IS ENABLED FOR THIS MODE
-    HEX4_expected <= (not blank);
-    HEX5_expected <= (not blank);
-    -- No need to check HEX4 and HEX5 after this point, as they are forced
+        -- No need to check HEX4 and HEX5 after this point, as they are forced
     -- blank in datapath.vhd.
-    wait for smalltime;
-    assert HEX0_expected = HEX0 report "Failed display mode 3 test (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed display mode 3 test (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed display mode 3 test (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed display mode 3 test (HEX3)";
-    assert HEX4_expected = HEX4 report "Failed display mode 3 test (HEX4)";
-    assert HEX5_expected = HEX5 report "Failed display mode 3 test (HEX5)";
+    assert HEX0 = (not H4) report "Failed display mode 3 test (HEX0)";
+    assert HEX1 = (not Hc) report "Failed display mode 3 test (HEX1)";
+    assert HEX2 = (not H8) report "Failed display mode 3 test (HEX2)";
+    --auto blanking is enabled
+    assert HEX3 = (not blank) report "Failed display mode 3 test (HEX3)";
+    assert HEX4 = (not blank) report "Failed display mode 3 test (HEX4)";
+    assert HEX5 = (not blank) report "Failed display mode 3 test (HEX5)";
 
     -- TESTING DISPLAY MODE 2 (VOLTAGE IN DECIMAL)
     -- Now considering the hex value 8c4, the voltage output will be
     -- 0x8c4*5000/4096, which using a calculator comes to a decimal value of
     -- 2739.26 which will be floored, so we expect to see on our output 2739
     -- mv or 2739 V.
-    
+
     SW(9 downto 8) <= "10";
-    HEX0_expected <= (not H9);
-    HEX1_expected <= (not H3);
-    HEX2_expected <= (not H7);
-    HEX3_expected <= not (H2 or DP); -- This should have a DP on it (hence the
-                                     -- or)
-    wait for smalltime;
-    assert HEX0_expected = HEX0 report "Failed display mode 2 test (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed display mode 2 test (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed display mode 2 test (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed display mode 2 test (HEX3)";
+        -- or)
+    wait for dt;
+    assert HEX0 = (not H9) report "Failed display mode 2 test (HEX0)";
+    assert HEX1 = (not H3) report "Failed display mode 2 test (HEX1)";
+    assert HEX2 = (not H7) report "Failed display mode 2 test (HEX2)";
+    assert HEX3 = not (H2 or DP) report "Failed display mode 2 test (HEX3)";
+-- NEEDS A DP ON IT BECAUSE OF VOLTAGE MODE
 
     -- TESTING DISPLAY MODE 1 (DISTANCE IN CM)
     -- NOTE: This testbench will assume that you are using the default LUT,
     -- Using the LUT, a voltage of 2739mV should result, the distance in 10^-4
     -- is 414. so we expect an output of 4.14 on the screen
     SW(9 downto 8) <= "01";
-    HEX0_expected <= (not H4);
-    HEX1_expected <= (not H1);
-    HEX2_expected <= not(DP or H4);
-    HEX3_expected <= (not BLANK); -- AUTOBLANKING IS ENABLED FOR THIS MODE
-    wait for smalltime;
-    assert HEX0_expected = HEX0 report "Failed display mode 1 test (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed display mode 1 test (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed display mode 1 test (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed display mode 1 test (HEX3)";
+        wait for dt;
+    assert HEX0 = not H4 report "Failed display mode 1 (HEX0)";
+    assert HEX1 = not H1 report "Failed display mode 1 (HEX1)";
+    assert HEX2 = not (DP or H4) report "Failed display mode 1 (HEX2)";
+    assert HEX3 = not blank report "Failed display mode 1 (HEX3)"; --
+                                                                   --AUTOBLANKING
+                                                                   --IS ENABLED
+                                                                   --FOR THIS MODE
+
 
 
     -- TESTING HOLD (DISPLAY SHOULD NOT CHANGE)
-    freeze_n <= '0';
+    freeze_n       <= '0';
     wait for dt;
     SW(9 downto 8) <= "00";
     SW(7 downto 0) <= X"ED";
-    wait for smalltime;
-    assert HEX0_expected = HEX0 report "Failed display freeze (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed display freeze (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed display freeze (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed display freeze (HEX3)";
+    wait for dt;
+    assert HEX0 = not H4 report "Failed display freeze (HEX0)";
+    assert HEX1 = not H1 report "Failed display freeze (HEX1)";
+    assert HEX2 = not (DP or H4) report "Failed display freeze (HEX2)";
+    assert HEX3 = not blank report "Failed display freeze (HEX3)";
 
     -- TESTING HEX SWTICH DISPLAY MODE
     freeze_n <= '1';
-    HEX0_expected <= (not Hd);
-    HEX1_expected <= (not He);
-    HEX2_expected <= (not H0);
-    HEX3_expected <= (not H0); -- NO AUTO BLANKING IN THIS MODE
     wait for dt;
-    assert HEX0_expected = HEX0 report "Failed hex mode (HEX0)";
-    assert HEX1_expected = HEX1 report "Failed hex mode (HEX1)";
-    assert HEX2_expected = HEX2 report "Failed hex mode (HEX2)";
-    assert HEX3_expected = HEX3 report "Failed hex mode (HEX3)";
+
+    assert HEX0 = not Hd report "Failed hex mode (HEX0)";
+    assert HEX1 = not He report "Failed hex mode (HEX1)";
+    assert HEX2 = not H0 report "Failed hex mode (HEX2)";
+    assert HEX3 = not H0 report "Failed hex mode (HEX3)";  -- NO AUTOBLANKING
+
+    wait for dt;
 
 
     TbSimEnded <= '1';
