@@ -330,6 +330,7 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to buzzer
 #set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to ARDUINO_RESET_N
 
 
+set_global_assignment -name VHDL_FILE ../distance_mapper.vhd
 set_global_assignment -name VHDL_FILE ../pacc.vhd
 set_global_assignment -name VHDL_FILE ../PWM.vhd
 set_global_assignment -name VHDL_FILE ../DPunit.vhd

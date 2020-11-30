@@ -33,15 +33,27 @@ architecture Behavioral of datapath is
   signal ADC_raw  : std_logic_vector(11 downto 0);
   signal ADC_out  : std_logic_vector(11 downto 0);
 
+    signal clk_div : std_logic_vector(3 downto 0);
+
   component pacc is
-    generic(sz : integer := 32);
+    generic(max_cnt : integer := 2**32 - 1);
     port(clk     : in  std_logic;
+         en      : in  std_logic;
          reset_n : in  std_logic;
-         T       : in  unsigned(sz - 1 downto 0);
+         T       : in  natural range 0 to max_cnt;
          y       : out std_logic);
   end component;
 
-  signal T : unsigned(18 downto 0);
+  -- We need 17 bits to get down to a 300Hz pacc output
+  constant max_cnt : natural := 2**20 - 1;
+  signal T         : natural range 0 to max_cnt;
+
+  component distance_mapper is
+    port(distance       : in  std_logic_vector(12 downto 0);
+         distance_trunc : out std_logic_vector(6 downto 0));
+  end component;
+
+  signal distance_trunc : std_logic_vector(6 downto 0);
 
   component PWM is
     generic (sz : integer := 32);
@@ -53,8 +65,7 @@ architecture Behavioral of datapath is
           y          : out std_logic);
   end component;
 
-  signal distance_trunc : std_logic_vector(6 downto 0);
-  signal LEDR_val       : std_logic;
+  signal LEDR_val : std_logic;
 
   component mux4 is
     generic(sz : integer := 1);
@@ -148,14 +159,19 @@ begin
              ADC_raw  => ADC_raw,
              ADC_out  => ADC_out);
 
-  T <= unsigned(distance) & "000000";
+  --T <= 100000;
+  T <= to_integer(unsigned(distance & "0000000"));
   i_pacc_1 : pacc
-    generic map(sz => 19)
-    port map(clk => clk,
+    generic map(max_cnt => max_cnt)
+    port map(clk     => clk,
+             en      => '1',
              reset_n => reset_n,
-             T => T,
-             y => buzzer);
+             T       => T,
+             y       => buzzer);
 
+    i_distance_mapper_1 : distance_mapper
+    port map(distance       => distance,
+             distance_trunc => distance_trunc);
 
   i_PWM_1 : PWM
     generic map(sz => 7)  -- 7 bits gives us 0.007 percent divs on our PWM output
@@ -166,19 +182,14 @@ begin
              y          => open,
              y_inv      => LEDR_val);
 
-  -- This maps the range 0->4096 onto the range of 0->128. Arguably a
-  -- non-linear transformation is better because at a duty_cycle of greater
-  -- than 75% the perceived brightness change is very small. But that would
-  -- need another LUT.
-
-  process(distance)
-  begin
-    if unsigned(distance) < to_unsigned(4000, distance'length) then
-      distance_trunc <= distance(11 downto 5);
-    else
-      distance_trunc <= (others => '1');
-    end if;
-  end process;
+  --process(distance)
+  --begin
+  --  if unsigned(distance) < to_unsigned(4000, distance'length) then
+  --    distance_trunc <= distance(11 downto 5);
+  --  else
+  --    distance_trunc <= (others => '1');
+  --  end if;
+  --end process;
 
   LEDR <= (others => LEDR_val);
 

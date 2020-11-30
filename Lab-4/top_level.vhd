@@ -3,19 +3,18 @@ use ieee.std_logic_1164.all;
 
 
 entity top_level is
-  port(clk         : in  std_logic;
-       SW          : in  std_logic_vector(9 downto 0);
-       reset_n     : in  std_logic;
-       freeze_n    : in  std_logic;
-       LEDR        : out std_logic_vector(9 downto 0);
-       ARDUNINO_IO : out std_logic_vector(15 downto 0);
-       buzzer : out std_logic;
-       HEX0        : out std_logic_vector(7 downto 0);
-       HEX1        : out std_logic_vector(7 downto 0);
-       HEX2        : out std_logic_vector(7 downto 0);
-       HEX3        : out std_logic_vector(7 downto 0);
-       HEX4        : out std_logic_vector(7 downto 0);
-       HEX5        : out std_logic_vector(7 downto 0)
+  port(clk      : in  std_logic;
+       SW       : in  std_logic_vector(9 downto 0);
+       reset_n  : in  std_logic;
+       freeze_n : in  std_logic;
+       LEDR     : out std_logic_vector(9 downto 0);
+       buzzer   : out std_logic;
+       HEX0     : out std_logic_vector(7 downto 0);
+       HEX1     : out std_logic_vector(7 downto 0);
+       HEX2     : out std_logic_vector(7 downto 0);
+       HEX3     : out std_logic_vector(7 downto 0);
+       HEX4     : out std_logic_vector(7 downto 0);
+       HEX5     : out std_logic_vector(7 downto 0)
        );
 end;
 
@@ -48,7 +47,7 @@ architecture Behavioral of top_level is
          SW       : in  std_logic_vector(9 downto 0);
          reset_n  : in  std_logic;
          freeze_n : in  std_logic;
-         buzzer : out std_logic;
+         buzzer   : out std_logic;
          LEDR     : out std_logic_vector(9 downto 0);
          HEX0     : out std_logic_vector(7 downto 0);
          HEX1     : out std_logic_vector(7 downto 0);
@@ -79,7 +78,7 @@ begin
     port map(clk      => clk,
              SW       => synced_SW,
              LEDR     => LEDR,
-             buzzer => buzzer,
+             buzzer   => buzzer,
              reset_n  => reset_n,
              freeze_n => debounced_freeze_n,
              HEX0     => HEX0,
