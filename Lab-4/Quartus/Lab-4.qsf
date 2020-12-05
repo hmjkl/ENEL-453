@@ -330,7 +330,14 @@ set_instance_assignment -name IO_STANDARD "3.3-V LVTTL" -to buzzer
 #set_instance_assignment -name IO_STANDARD "3.3 V SCHMITT TRIGGER" -to ARDUINO_RESET_N
 
 
-set_global_assignment -name VHDL_FILE ../pacc.vhd
+set_global_assignment -name VHDL_FILE ../buzzer_controller.vhd
+set_global_assignment -name VHDL_FILE ../seven_seg_controller.vhd
+set_global_assignment -name VHDL_FILE ../counter.vhd
+set_global_assignment -name VHDL_FILE ../LEDR_controller.vhd
+set_global_assignment -name VHDL_FILE ../BUZZER_LUT.vhd
+set_global_assignment -name VHDL_FILE ../mapper.vhd
+set_global_assignment -name VHDL_FILE ../distance2dutycycle.vhd
+set_global_assignment -name VHDL_FILE ../LED_LUT.vhd
 set_global_assignment -name VHDL_FILE ../PWM.vhd
 set_global_assignment -name VHDL_FILE ../DPunit.vhd
 set_global_assignment -name VHDL_FILE ../blanker.vhd
@@ -338,7 +345,6 @@ set_global_assignment -name VHDL_FILE ../synchronizer.vhd
 set_global_assignment -name VHDL_FILE ../debounce.vhd
 set_global_assignment -name VHDL_FILE ../averager.vhd
 set_global_assignment -name VHDL_FILE ../binary_bcd.vhd
-set_global_assignment -name VHDL_FILE ../pmatch.vhd
 set_global_assignment -name SOURCE_FILE "Lab-4.qsf"
 set_global_assignment -name VHDL_FILE ../top_level.vhd
 set_global_assignment -name VHDL_FILE ../tb_ADC_data.vhd
