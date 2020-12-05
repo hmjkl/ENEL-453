@@ -18,14 +18,6 @@ architecture Behavioral of SevenSegment is
          );
   end component;
 
-  component pmatch is
-    generic(sz : integer := 32);
-    port(X     : in  std_logic_vector(sz - 1 downto 0);
-         en    : in  std_logic;
-         match : in  std_logic_vector(sz - 1 downto 0);
-         flag  : out std_logic);
-  end component;
-
 begin
 
   decoder0 : SevenSegment_decoder port map
