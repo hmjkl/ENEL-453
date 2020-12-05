@@ -7,7 +7,7 @@ entity PWM is
   port (clk        : in  std_logic;
         reset_n    : in  std_logic;
         en         : in  std_logic;
-        duty_cycle : in  std_logic_vector(sz - 1 downto 0);
+        duty_cycle : in  unsigned(sz - 1 downto 0);
         y          : out std_logic;
         y_inv      : out std_logic);
 end;
@@ -30,7 +30,7 @@ begin
 
   comb : process(duty_cycle, cnt, y_tmp)
   begin
-    if unsigned(duty_cycle) > cnt then
+    if duty_cycle > cnt then
       y_tmp <= '1';
     else
       y_tmp <= '0';
