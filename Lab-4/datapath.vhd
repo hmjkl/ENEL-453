@@ -28,33 +28,76 @@ architecture Behavioral of datapath is
          ADC_out  : out std_logic_vector(11 downto 0));
   end component;
 
-  signal voltage  : std_logic_vector(12 downto 0);
-  signal distance : std_logic_vector(12 downto 0);
-  signal ADC_raw  : std_logic_vector(11 downto 0);
-  signal ADC_out  : std_logic_vector(11 downto 0);
+  signal voltage           : std_logic_vector(12 downto 0);
+  signal distance          : std_logic_vector(12 downto 0);
+  signal distance_unsigned : unsigned(12 downto 0);
+  signal ADC_raw           : std_logic_vector(11 downto 0);
+  signal ADC_out           : std_logic_vector(11 downto 0);
 
-  component pacc is
-    generic(sz : integer := 32);
+  component counter is
+    generic(CLK_DIV_SCALE : integer := 10_000);
     port(clk     : in  std_logic;
          reset_n : in  std_logic;
-         T       : in  unsigned(sz - 1 downto 0);
-         y       : out std_logic);
+         en      : in  std_logic;
+         max_cnt :     natural range 0 to CLK_DIV_SCALE;
+         Y       : out std_logic);
   end component;
 
-  signal T : unsigned(18 downto 0);
+  signal buzzer_max_cnt : natural range 0 to 8191;
+  signal PWM_2_EN       : std_logic;
+
+  component distance2buzzer is
+    port(distance : in  unsigned(12 downto 0);
+         T        : out unsigned(19 downto 0));
+  end component;
+
+
+  component LEDR_controller is
+    port(clk      : in  std_logic;
+         reset_n  : in  std_logic;
+         distance : in  unsigned(12 downto 0);
+         Y        : out std_logic);
+  end component;
+
+  component buzzer_controller is
+    port(clk      : in  std_logic;
+         reset_n  : in  std_logic;
+         en       : in  std_logic;
+         distance : in  unsigned(12 downto 0);
+         buzzer   : out std_logic);
+  end component;
+
+  component seven_seg_controller is
+    port(clk       : in  std_logic;
+         reset_n   : in  std_logic;
+         en        : in  std_logic;
+         distance  : in  unsigned(12 downto 0);
+         blank_val : out std_logic);
+  end component;
+
+  signal blank_val : std_logic;
+
+  component seven_segment_mapper is
+    port (blank_in  : in  std_logic;
+          distance  : in  std_logic_vector(12 downto 0);
+          blank_out : out std_logic);
+  end component;
+
+  signal mapper_blank_in  : std_logic;
+  signal mapper_blank_out : std_logic;
 
   component PWM is
     generic (sz : integer := 32);
     port (clk        : in  std_logic;
           reset_n    : in  std_logic;
           en         : in  std_logic;
-          duty_cycle : in  std_logic_vector(sz - 1 downto 0);
+          duty_cycle : in  unsigned(sz - 1 downto 0);
           y_inv      : out std_logic;
           y          : out std_logic);
   end component;
 
-  signal distance_trunc : std_logic_vector(6 downto 0);
-  signal LEDR_val       : std_logic;
+  signal PWM_LEDR : std_logic;
+  signal LEDR_val : std_logic;
 
   component mux4 is
     generic(sz : integer := 1);
@@ -148,39 +191,34 @@ begin
              ADC_raw  => ADC_raw,
              ADC_out  => ADC_out);
 
-  T <= unsigned(distance) & "000000";
-  i_pacc_1 : pacc
-    generic map(sz => 19)
-    port map(clk => clk,
-             reset_n => reset_n,
-             T => T,
-             y => buzzer);
+  --Blank <= "110000";
 
+  distance_unsigned <= unsigned(distance);
 
-  i_PWM_1 : PWM
-    generic map(sz => 7)  -- 7 bits gives us 0.007 percent divs on our PWM output
-    port map(clk        => clk,
-             reset_n    => reset_n,
-             en         => '1',
-             duty_cycle => distance_trunc,
-             y          => open,
-             y_inv      => LEDR_val);
-
-  -- This maps the range 0->4096 onto the range of 0->128. Arguably a
-  -- non-linear transformation is better because at a duty_cycle of greater
-  -- than 75% the perceived brightness change is very small. But that would
-  -- need another LUT.
-
-  process(distance)
-  begin
-    if unsigned(distance) < to_unsigned(4000, distance'length) then
-      distance_trunc <= distance(11 downto 5);
-    else
-      distance_trunc <= (others => '1');
-    end if;
-  end process;
+  i_LEDR_controller : LEDR_controller
+    port map(clk      => clk,
+             reset_n  => reset_n,
+             distance => distance_unsigned,
+             Y        => LEDR_val);
 
   LEDR <= (others => LEDR_val);
+
+  i_buzzer_controller_1 : buzzer_controller
+    port map(clk      => clk,
+             reset_n  => reset_n,
+             en       => '1',
+             distance => distance_unsigned,
+             buzzer   => buzzer);
+
+  i_seven_seg_controller_1 : seven_seg_controller
+    port map(clk       => clk,
+             reset_n   => reset_n,
+             en        => '1',
+             distance  => distance_unsigned,
+             blank_val => blank_val);
+
+  Blank(3 downto 0) <= (others => blank_val);
+  Blank(5 downto 4) <= "00";
 
   i_binary_bcd_1 : binary_bcd
     port map(clk     => clk,
@@ -247,7 +285,7 @@ begin
              DP_in     => seven_segment_conf(6 downto 1),
              blank_out => blank_out);
 
-  Blank <= "110000";
+  --Blank <= "110000";
 
   i_SevenSegment_1 : SevenSegment
     port map(DP_in    => DP_in,
