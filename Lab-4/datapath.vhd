@@ -169,6 +169,7 @@ architecture Behavioral of datapath is
          Q       : out std_logic_vector(sz -1 downto 0));
   end component;
 
+  signal frozen_distance          : std_logic_vector(12 downto 0);
   signal hex_ins : std_logic_vector(15 downto 0);
 
   component binary_bcd is
@@ -193,7 +194,7 @@ begin
 
   --Blank <= "110000";
 
-  distance_unsigned <= unsigned(distance);
+  distance_unsigned <= unsigned(frozen_distance);
 
   i_LEDR_controller : LEDR_controller
     port map(clk      => clk,
@@ -274,6 +275,14 @@ begin
              reset_n => reset_n,
              D       => y_aux_data,
              Q       => seven_segment_conf);
+
+  i_DFlip_3 : DFlip
+    generic map(sz => 13)
+    port map(clk => clk,
+             en => freeze_n,
+             reset_n => reset_n,
+             D => distance,
+             Q => frozen_distance);
 
   blank_D <= "00000000" & hex_ins;
   DP_in   <= seven_segment_conf(6 downto 1);
