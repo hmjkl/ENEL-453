@@ -11,7 +11,7 @@ M = 255;
 
 distance_meas = [3778 2500 1469 427];
 distance_meas_norm = 100 * (255 - distance_meas / 16) / 255;
-brightness = [10 33 80 100];
+brightness = [4 60 80 100];
 duty_cycle = distance_meas_norm;
 
 % The start, use these brightness and duty_cycle values. Then note the
