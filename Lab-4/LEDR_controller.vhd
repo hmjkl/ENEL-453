@@ -20,8 +20,8 @@ architecture Structural of LEDR_controller is
   end component;
 
   component distance2duty is
-    port(distance       : in  unsigned(12 downto 0);
-         distance_trunc : out unsigned(7 downto 0));
+    port(distance   : in  unsigned(12 downto 0);
+         duty_cycle : out unsigned(7 downto 0));
   end component;
 
   component PWM is
@@ -34,25 +34,31 @@ architecture Structural of LEDR_controller is
           y          : out std_logic);
   end component;
 
-  signal distance_trunc : unsigned(7 downto 0);
-  signal PWM_LEDR       : std_logic;
+  signal duty_cycle : unsigned(7 downto 0);
+  signal PWM_LEDR   : std_logic;
 
 
 begin
 
+  -- Uncomment the following line for the quick non-linear brightness for LEDR
+  --duty_cycle <= unsigned(distance(11 downto 4));
+
+  -- This is an improved version that has linear steps in brightness.
   i_distance2duty : distance2duty
-    port map(distance       => distance,
-             distance_trunc => distance_trunc);
+    port map(distance   => distance,
+             duty_cycle => duty_cycle);
+
 
   i_PWM_1 : PWM
     generic map(sz => 8)
     port map(clk        => clk,
              reset_n    => reset_n,
              en         => '1',
-             duty_cycle => distance_trunc,
+             duty_cycle => duty_cycle,
              y          => open,
              y_inv      => PWM_LEDR);
 
+  -- Only turns LEDs on for distance < 4000
   i_mapper_1 : mapper
     generic map(cond => 4001)
     port map(distance => distance,
