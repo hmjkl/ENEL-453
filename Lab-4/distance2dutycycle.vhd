@@ -20,6 +20,7 @@ architecture Behavioral of distance2duty is
 begin
 
       --distance_trunc <= to_unsigned((d2d_LUT(to_integer(unsigned(distance(11 downto 4))))),distance_trunc'length);
-      distance_trunc <= to_unsigned((d2d_LUT(to_integer(unsigned(distance srl 4)))),distance_trunc'length);
+      distance_trunc <= to_unsigned((d2d_LUT(to_integer(distance(11 downto 4)))),distance_trunc'length);
+      --distance_trunc <= to_unsigned((d2d_LUT(to_integer(unsigned(distance srl 4)))),distance_trunc'length);
 
 end;
