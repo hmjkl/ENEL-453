@@ -16,16 +16,16 @@ end;
 
 architecture Behavioral of counter is
 
-  signal cnt : natural range 0 to CLK_DIV_SCALE - 1 := max_cnt; -- This
-                                                                -- assignment
-                                                                -- helps to
-                                                                -- supress a
-                                                                -- "critical
-                                                                -- warning"
-                                                                -- that warns
-                                                                -- of of
-                                                                -- behavior we
-                                                                -- want/expect.
+  signal cnt : natural range 0 to CLK_DIV_SCALE := max_cnt; -- This
+                                                            -- assignment
+                                                            -- helps to
+                                                            -- supress a
+                                                            -- "critical
+                                                            -- warning"
+                                                            -- that warns
+                                                            -- of of
+                                                            -- behavior we
+                                                            -- want/expect.
 
 begin
 
