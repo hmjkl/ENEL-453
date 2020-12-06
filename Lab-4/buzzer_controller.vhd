@@ -42,14 +42,23 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      -- This is a fast approximation of a function that results in
-      -- freq(3.50cm) = 5000 and freq(40.95cm) = 350.
-      buzzer_max_cnt <= to_integer((distance srl 2) - 10);
+
+      -- This is a fast approximate formula for buzzer_max_cnt that does not
+      -- need multiplcation.
+      --buzzer_max_cnt <= to_integer((distance srl 2) - 10);
+
+      -- This is the slower buzzer_max_cnt formula. We know that F_out
+      -- = F_o/counter, where F_o is given by 50E6/2^sz =
+      -- 192KHz. Solving the equation at freq(3.50cm) = 5000 and
+      -- freq(40.95cm) = 350 gives counter(d) = 0.163*d-18.13. 0.163
+      -- ~= 42/256 hence the coeffs. The zero extend is needed to
+      -- prevent overflows.
+      buzzer_max_cnt <= to_integer(((42 * ("000000" & distance)) srl 8) - 18);
     end if;
   end process;
 
   i_counter_1 : counter
-    generic map(CLK_DIV_SCALE => 8191)
+    generic map(CLK_DIV_SCALE => 8192)
     port map(clk     => clk,
              reset_n => reset_n,
              max_cnt => buzzer_max_cnt,
