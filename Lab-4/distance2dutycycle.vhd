@@ -12,15 +12,14 @@ use work.LED_LUT_pkg.all;
 
 entity distance2duty is
   port(distance       : in  unsigned(12 downto 0);
-       distance_trunc : out unsigned(7 downto 0));
+       duty_cycle : out unsigned(7 downto 0));
 end;
 
 
 architecture Behavioral of distance2duty is
 begin
 
-      --distance_trunc <= to_unsigned((d2d_LUT(to_integer(unsigned(distance(11 downto 4))))),distance_trunc'length);
-      distance_trunc <= to_unsigned((d2d_LUT(to_integer(distance(11 downto 4)))),distance_trunc'length);
+      duty_cycle <= to_unsigned((d2d_LUT(to_integer(distance(11 downto 4)))),duty_cycle'length);
       --distance_trunc <= to_unsigned((d2d_LUT(to_integer(unsigned(distance srl 4)))),distance_trunc'length);
 
 end;
