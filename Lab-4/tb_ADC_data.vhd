@@ -58,8 +58,7 @@ begin
         wait for 100 ns;
 
         -- EDIT Add stimuli here
-        wait for 100 * TbPeriod;
-        wait for 500 * 980 ns;
+        wait for 15000 * TbPeriod;
 
         -- to figure out the expected stable output, we need to find
         -- the sum of each state. If we say that Y=sum of all state
@@ -72,11 +71,11 @@ begin
         assert ADC_out = std_logic_vector(to_unsigned(2244,ADC_out'length)) report "Incorrect average result";
 
         -- Just to show the output is stable, lets wait some more time.
-        wait for 5000 ns;
+        wait for 10 ms;
 
         -- Stop the clock and hence terminate the simulation
         TbSimEnded <= '1';
-        assert false report "Simulation ended" severity failure; -- need this line to halt the testbench  
+        wait;
     end process;
 
 end tb;

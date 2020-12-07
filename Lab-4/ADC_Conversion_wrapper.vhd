@@ -29,25 +29,30 @@ end RTL;
 architecture simulation of ADC_Conversion_wrapper is
   signal counter              : std_logic_vector(3 downto 0) := (others => '0');
   signal response_valid_out_i : std_logic;
-  constant cnt_delta_time     : time                         := 1000 ns;
-  constant TbLength           : time                         := 10 ms;
-  constant max_cnt            : integer                      := TbLength / cnt_delta_time;
+
+  -- This is the number of cycles to wait between changing the upper bits of ADC_out
+  constant cnt_delta : natural := 5000;
 
 begin
 
   response_valid_out   <= response_valid_out_i;
-  ADC_out(11 downto 3) <= "100011000";  -- upper ADC bits stay the same
 
   response_valid_out_process : process
-    variable cnt : integer := 0;
+    variable cnt : natural := 0;
+    variable timeElapsed : time := 0 ps;
   begin
     cnt := cnt + 1;
-    if cnt > max_cnt then
-      wait;
+    if cnt < cnt_delta then
+      ADC_out(11 downto 3) <= "100011000";
+    elsif cnt < 2*cnt_delta then
+      ADC_out(11 downto 3) <= "001101101";
     else
-      response_valid_out_i <= '0'; wait for 980 ns;
-      response_valid_out_i <= '1'; wait for 20 ns;
+      wait;
     end if;
+
+
+    response_valid_out_i <= '0'; wait for 980 ns;
+    response_valid_out_i <= '1'; wait for 20 ns;
   end process;
 
   ADC_out_process : process (response_valid_out_i)  -- modify the lower 3 ADC bits
@@ -101,7 +106,6 @@ begin
       end case;
     end if;
   end process;
-
 
 
 end simulation;
